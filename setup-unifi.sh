@@ -19,3 +19,5 @@ incus file push ./mongodb-org.gpg unifi/etc/apt/trusted.gpg.d/mongodb-org.gpg -p
 
 incus exec unifi -- apt-get update
 incus exec unifi -- apt-get -y install unifi
+
+incus config set unifi boot.autostart=true
