@@ -1,3 +1,7 @@
 100-*.list
 *.gpg
 *.unf
+ca.crt
+unifi.crt
+unifi.key
+unifi.p12

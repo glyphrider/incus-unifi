@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-set +x
+P12_PASS="temppass"
+
+CA_ALIAS="marisol"
+UNIFI_KEYSTORE_PASS="aircontrolenterprise"
+
+set -x
 
 incus launch images:debian/12 unifi
 incus exec unifi -- apt-get update
@@ -21,3 +26,24 @@ incus exec unifi -- apt-get update
 incus exec unifi -- apt-get -y install unifi
 
 incus config set unifi boot.autostart=true
+
+# SSL Setup for unifi
+
+if [ -f ./unifi.key -a -f ./unifi.crt ]; then
+openssl pkcs12 -export -in unifi.crt -inkey unifi.key -out unifi.p12 -name unifi -CAfile ca.crt -caname marisol -passout "pass:$P12_PASS"
+fi
+
+if [ -f ./ca.crt ]; then
+incus file push ./ca.crt unifi/tmp/ca.crt -pv
+incus exec unifi -- keytool -import -trustcacerts -alias "$CA_ALIAS" -file /tmp/ca.crt -keystore /var/lib/unifi/keystore -storepass "$UNIFI_KEYSTORE_PASS" -noprompt
+fi
+
+if [ -f ./unifi.p12 ]; then
+incus file push ./unifi.p12 unifi/tmp/unifi.p12 -pv
+incus exec unifi -- keytool -importkeystore -deststorepass "$UNIFI_KEYSTORE_PASS" -destkeypass "$UNIFI_KEYSTORE_PASS" -destkeystore /var/lib/unifi/keystore -srckeystore /tmp/unifi.p12 -srcstoretype PKCS12 -srcstorepass "$P12_PASS" -alias unifi -noprompt
+
+# Move SSL port to 443
+incus exec unifi -- sed -i 's/\(# \|\)unifi\.https\.port\=.*/unifi.https.port=443/' /var/lib/unifi/system.properties
+incus exec unifi -- bash -c 'setcap CAP_NET_BIND_SERVICE=+eip $(readlink -f /usr/bin/java)'
+incus exec unifi -- systemctl restart unifi
+fi
