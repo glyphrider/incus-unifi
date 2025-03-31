@@ -7,6 +7,9 @@ UNIFI_KEYSTORE_PASS="aircontrolenterprise"
 
 set -x
 
+incus stop unifi
+incus delete unifi
+
 incus launch images:debian/12 unifi
 incus exec unifi -- apt-get update
 incus exec unifi -- apt-get -y install ca-certificates apt-transport-https gnupg
@@ -26,6 +29,12 @@ incus exec unifi -- apt-get update
 incus exec unifi -- apt-get -y install unifi
 
 incus config set unifi boot.autostart=true
+
+#mkdir -pv $(pwd)/backup/autobackup
+#incus config device add unifi backup disk source=$(pwd)/backup path=/var/lib/unifi/backup
+
+incus profile add unifi bridged
+incus config device override unifi eth0 hwaddr='00:16:3e:cd:e9:6d'
 
 # SSL Setup for unifi
 
