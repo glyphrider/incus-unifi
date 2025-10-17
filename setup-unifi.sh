@@ -30,9 +30,6 @@ incus exec unifi -- apt-get -y install unifi
 
 incus config set unifi boot.autostart=true
 
-#mkdir -pv $(pwd)/backup/autobackup
-#incus config device add unifi backup disk source=$(pwd)/backup path=/var/lib/unifi/backup
-
 incus profile add unifi bridged
 incus config device override unifi eth0 hwaddr='00:16:3e:cd:e9:6d'
 
@@ -56,3 +53,8 @@ incus exec unifi -- sed -i 's/\(# \|\)unifi\.https\.port\=.*/unifi.https.port=44
 incus exec unifi -- bash -c 'setcap CAP_NET_BIND_SERVICE=+eip $(readlink -f /usr/bin/java)'
 incus exec unifi -- systemctl restart unifi
 fi
+
+# restarted needed when modified network and hwaddr will result in different IP
+incus restart unifi
+
+# everything should now be ready to configure (or restore a backup)
