@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CONTAINER_NAME=unifi-trixie
+source ./unifi.name
 
 P12_PASS="temppass"
 

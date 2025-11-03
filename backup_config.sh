@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CONTAINER_NAME=unifi-trixie
+source ./unifi.name
 
 BACKUP_FOLDER=$(dirname $0)/unifi_backup
 mkdir -pv $BACKUP_FOLDER
