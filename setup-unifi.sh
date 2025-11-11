@@ -32,9 +32,9 @@ incus exec $CONTAINER_NAME -- apt-get -y install unifi
 
 incus config set $CONTAINER_NAME boot.autostart=true
 
-# incus profile create bridged
-# incus profile device add bridged eth0 nic nictype=bridged parent=br0
-incus profile add $CONTAINER_NAME bridged
+# incus profile create management
+# incus profile device add management eth0 nic nictype=bridged parent=br0
+incus profile add $CONTAINER_NAME management
 incus config device override $CONTAINER_NAME eth0 hwaddr='00:16:3e:cd:e9:6d'
 incus restart $CONTAINER_NAME
 
